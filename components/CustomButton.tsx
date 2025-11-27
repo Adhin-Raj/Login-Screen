@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import React from "react";
 
 interface CustomButtonProps {
@@ -6,16 +6,19 @@ interface CustomButtonProps {
   labelCustomStyle?: Object;
   btnLabel: string;
   handleFun?:()=>void
+  isDisabled?:boolean
 }
+
 
 export default function CustomButton({
   btnLabel,
   btnCustomStyle,
   labelCustomStyle,
-  handleFun
+  handleFun,
+  isDisabled=false
 }: CustomButtonProps) {
   return (
-    <TouchableOpacity style={[styles.btn, btnCustomStyle]} onPress={handleFun}>
+    <TouchableOpacity style={[styles.btn, btnCustomStyle,isDisabled && {opacity:0.4}]} onPress={handleFun} disabled={isDisabled}>
       <Text style={[styles.text, labelCustomStyle]}>{btnLabel}</Text>
     </TouchableOpacity>
   );

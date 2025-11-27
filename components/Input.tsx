@@ -63,6 +63,8 @@ export default function Input({
       ) : (
         <Image source={secondPath} style={[styles.endIcon, secondPathStyle]} />
       )}
+
+      
     </View>
   );
 }

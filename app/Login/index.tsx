@@ -1,17 +1,71 @@
-import lockEye from "@/assets/images/eye-off.png";
+import lockEye from "@/assets/images/eye.png";
 import LockIcon from "@/assets/images/lock.png";
 import MailIcon from "@/assets/images/mail.png";
 import CustomButton from "@/components/CustomButton";
 import Input from "@/components/Input";
 import LoginHeader from "@/components/LoginHeader";
-import React from "react";
-import {
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { auth } from "@/Firebase";
+import { useRouter } from "expo-router";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import React, { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { useToast } from "react-native-toast-notifications";
 
 export default function Login() {
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
+  const [isLogged, setIsLogged] = useState(false);
+  const toast = useToast();
+  const router = useRouter()
+
+  const handleOnChange = (key: string, text: string) => {
+    setLoginData((prev) => ({
+      ...prev,
+      [key]: text,
+    }));
+  };
+
+  const handleLogin = async () => {
+    try {
+      setIsLogged(true)
+      const { email, password } = loginData;
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user; // TODO: remove this 
+      toast.show("Logged in Successfully!", {
+        type: "success",
+        placement: "top",
+        duration: 4000,
+        animationType: "zoom-in",
+        style: {
+          marginTop: 40,
+        },
+      });
+      setLoginData({
+        email:"",
+        password:""
+      })
+      router.push(`/Home/${user.displayName}`)
+    } catch (error) {
+      toast.show("Login Failed!", {
+        type: "danger",
+        placement: "top",
+        duration: 4000,
+        animationType: "zoom-in",
+        style: {
+          marginTop: 40,
+        },
+      });
+    }finally{
+      setIsLogged(false)
+    }
+  };
+
   return (
     <View style={styles.container}>
       <LoginHeader
@@ -25,6 +79,8 @@ export default function Login() {
         placeholder="Email"
         inputMode="email"
         iconPath={MailIcon}
+        handleOnChange={(text) => handleOnChange("email", text)}
+        formValue={loginData.email}
       />
       <Input
         customStyle={styles.passwordInput}
@@ -32,10 +88,16 @@ export default function Login() {
         inputMode="text"
         iconPath={LockIcon}
         secondPath={lockEye}
+        handleOnChange={(text) => handleOnChange("password", text)}
+        formValue={loginData.password}
       />
 
       <Text style={styles.text}>Forgot Your Password ?</Text>
-      <CustomButton btnLabel="Login" />
+      <CustomButton
+        btnLabel="Login"
+        handleFun={handleLogin}
+        isDisabled={isLogged}
+      />
     </View>
   );
 }
